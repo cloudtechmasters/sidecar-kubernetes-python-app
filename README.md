@@ -1,31 +1,33 @@
-# Setup two Container using Custom bridge network
+# Pre-Requisites
+    - Install Git
+    - Install Docker
+    - Install EKS-Cluster
 
-## 1. Create Custom Bridge Network
-
-```
-  docker network create -d bridge javahome
-  
-```
-
-## 2. Run redis container
-
-We are using official image of redis(This image comes from docker hub)
-by default redis container runs on 6379 port
-
-```
-  docker run -d --name=redis --network=javahome redis:latest
-  
-```
-
-## 3. Run Python Container
-
-Python is the application developed by me, so this image comes from my docker hub account(it is public)
-
-```
-  docker run -d -p 8080:5000 --name=pythonap  --network=javahome kammana/python-app:1
-```
-
-## 4. Access The APp
-
-Open browser and put the following url
-http://<ip-address>:8080
+# Install Git:
+    yum install git -y
+# Install Docker:
+    yum install docker -y
+    service docker start
+# Clone code from github:
+    git clone https://github.com/cloudtechmasters/sidecar-kubernetes-python-app.git
+    cd sidecar-kubernetes-python-app
+# Build Docker image for python Application
+    docker build -t cloudtechmasters/sidecar-python:latest .
+# Docker login
+    docker login
+# Push docker image to dockerhub
+    docker push cloudtechmasters/sidecar-python:latest
+# Deploy application
+    kubectl apply -f deployment.yml
+    kubectl apply -f service.yml
+# Check running deployments, pods, services using below commands
+    kubectl get deploy
+    kubectl get pods
+    kubectl get svc
+# Check logs of two containers using below commands
+    kubectl logs python-app-7c88bfb446-99rwm -c redis
+    kubectl logs python-app-7c88bfb446-99rwm -c python-app
+![image](https://user-images.githubusercontent.com/68885738/93906416-cc311580-fd19-11ea-8988-65e138d80db1.png)
+# Go to UI and check with loadbalancer
+    http://afad699c3f0c34c48b180a9d4e834ebf-806369083.us-east-1.elb.amazonaws.com/
+![image](https://user-images.githubusercontent.com/68885738/93906182-84aa8980-fd19-11ea-87c0-08c0facc510b.png)
